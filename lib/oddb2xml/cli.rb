@@ -27,6 +27,7 @@ module Oddb2xml
       @infos_zur_rose = {} # [addition] infos_zur_rose and other infos from zurrose transfer.txt
       @migel = {} # [addition] additional Non Pharma products from files repo
       @firstbase = {}
+      @emediplan = {}
       @actions = [] # [addition] interactions from epha
       @orphan = [] # [addition] Orphaned drugs from Swissmedic xls
       # addresses
@@ -61,6 +62,7 @@ module Oddb2xml
         threads << download(:package) # swissmedic
         threads << download(:lppv) # oddb2xml_files
         threads << download(:bag) # bag.e-mediat
+        threads << download(:emediplan) # emediplan.ch https://github.com/zdavatz/oddb2xml/issues/80
         if @options[:firstbase]
           threads << download(:firstbase) # https://github.com/zdavatz/oddb2xml/issues/63
         end
@@ -325,6 +327,16 @@ module Oddb2xml
           @firstbase = FirstbaseExtractor.new(bin).to_hash
           Oddb2xml.log("FirstbaseExtractor added #{@firstbase.size} firstbase items")
           @firstbase
+        end
+
+      when :emediplan
+        downloader = EmediplanDownloader.new(@options)
+        bin = downloader.download
+        Oddb2xml.log("EmediplanDownloader bin #{File.size(bin)} bytes")
+        @mutex.synchronize do
+          @emediplan = EmediplanExtractor.new(bin).to_hash
+          Oddb2xml.log("EmediplanExtractor added #{@emediplan.size} emediplan items")
+          @emediplan
         end
       end
     end

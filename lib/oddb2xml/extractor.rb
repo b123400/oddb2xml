@@ -625,4 +625,33 @@ module Oddb2xml
       data
     end
   end
+
+  class EmediplanExtractor < Extractor
+    def initialize(file)
+      @sheet = RubyXL::Parser.parse(file).worksheets[0]
+    end
+
+    def to_hash
+      data = {}
+      return data unless @sheet
+      @sheet.each_with_index do |row, i|
+        next if i <= 0
+        if row.nil?
+          puts "Empty row (#{i}) in emediplan"
+          next
+        end
+        gtin = row[1].value.to_s.gsub(/^0+/, '')
+        data[gtin] = {
+          gtin: gtin,
+          pharmacode: row[0] ? row[0].value.to_s : "",
+          swissmedic_number5: row[2] ? row[2].value.to_s : "",
+          swissmedic_number5_package_code: row[3] ? row[3].value.to_s : "",
+          description: row[4] ? row[4].value.to_s : "",
+          category: row[6] ? row[6].value.to_s : "",
+        }
+      end
+      puts "emediplan #{data.inspect}"
+      data
+    end
+  end
 end
