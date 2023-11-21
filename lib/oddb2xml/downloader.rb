@@ -4,6 +4,7 @@ require "mechanize"
 require "zip"
 require "savon"
 require "open-uri"
+require "date"
 
 SKIP_MIGEL_DOWNLOADER = true # https://github.com/zdavatz/oddb2xml_files/raw/master/NON-Pharma.xls
 
@@ -391,6 +392,31 @@ module Oddb2xml
 
     def download
       @file2save = File.join(DOWNLOADS, "firstbase.xlsx")
+      report_download(@url, @file2save)
+      begin
+        download_as(@file2save, "w+")
+        return File.expand_path(@file2save)
+      rescue Timeout::Error, Errno::ETIMEDOUT
+        retrievable? ? retry : raise
+      ensure
+        Oddb2xml.download_finished(@file2save, false)
+      end
+      File.expand_path(@file2save)
+    end
+  end
+
+  class EmediplanDownloader < Downloader
+    BASE_URL = "https://emediplan.ch"    
+    include DownloadMethod
+    def initialize(type = :orphan, options = {})
+      today = Date.today
+      year = today.year.to_s
+      month = today.month.to_s.rjust(2,"0")
+      @url = BASE_URL + "/wp-content/uploads/#{year}/#{month}/#{year}#{month}01__MappingPharmacodeToGtinToSwissmedicDescription.xlsx"
+    end
+
+    def download
+      @file2save = File.join(DOWNLOADS, "emediplan.xlsx")
       report_download(@url, @file2save)
       begin
         download_as(@file2save, "w+")
