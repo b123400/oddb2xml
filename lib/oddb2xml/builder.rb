@@ -137,6 +137,10 @@ module Oddb2xml
             pharmacode = info[:pharmacode]
             if pharmacode.nil? && @emediplan[ean13]
               pharmacode = @emediplan[ean13][:pharmacode]
+              puts "OHHHHHHH #{ean13} #{pharmacode}"
+            end
+            if pharmacode.nil?
+              puts "HMMMMMM #{ean13}"
             end
             if @pharmacode[pharmacode]
               @pharmacode[pharmacode][:price] = info[:price]
@@ -185,6 +189,10 @@ module Oddb2xml
             pharmacode = nil
             if @emediplan[ean13]
               pharmacode = @emediplan[ean13][:pharmacode]
+              puts "OHHHHHHH1 #{ean13} #{pharmacode}"
+            end
+            if pharmacode.nil?
+              puts "hmmmmm1 #{ean13}"
             end
             entry = {
               ean13: ean13,
@@ -198,6 +206,15 @@ module Oddb2xml
             @articles << entry
           end
         end
+        # @emediplan.each do |ean13, obj|
+        #   # TODO, obj:
+        #   # gtin: gtin,
+        #   # pharmacode: row[0] ? row[0].value.to_s : "",
+        #   # swissmedic_number5: row[2] ? row[2].value.to_s : "",
+        #   # swissmedic_number5_package_code: row[3] ? row[3].value.to_s : "",
+        #   # description: row[4] ? row[4].value.to_s : "",
+        #   # category: row[6] ? row[6].value.to_s : "",
+        # end
       end
       Oddb2xml.log("prepare_articles done. Added #{nr_added} prices. Total #{@articles.size}")
     end
