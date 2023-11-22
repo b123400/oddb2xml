@@ -640,7 +640,7 @@ module Oddb2xml
           puts "Empty row (#{i}) in emediplan"
           next
         end
-        gtin = row[1].value.to_s.gsub(/^0+/, '')
+        gtin = row[1].value.to_s.gsub(/^0+/, '').strip
         data[gtin] = {
           gtin: gtin,
           pharmacode: row[0] ? row[0].value.to_s : "",

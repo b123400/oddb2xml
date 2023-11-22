@@ -406,7 +406,7 @@ module Oddb2xml
   end
 
   class EmediplanDownloader < Downloader
-    BASE_URL = "https://emediplan.ch"    
+    BASE_URL = "https://emediplan.ch"
     include DownloadMethod
     def initialize(type = :orphan, options = {})
       today = Date.today

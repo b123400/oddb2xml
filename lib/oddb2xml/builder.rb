@@ -42,7 +42,7 @@ module Oddb2xml
     @@gtin2ignore ||= []
     attr_accessor :subject, :refdata, :items, :flags, :lppvs,
       :actions, :migel, :orphan,
-      :infos, :packs, :infos_zur_rose, :firstbase,
+      :infos, :packs, :infos_zur_rose, :firstbase, :emediplan,
       :ean14, :tag_suffix,
       :companies, :people,
       :xsd
@@ -58,6 +58,7 @@ module Oddb2xml
       @migel = {}
       @infos_zur_rose ||= {}
       @firstbase ||= {}
+      @emediplan ||= {}
       @actions = []
       @orphan = []
       @ean14 = false
@@ -134,6 +135,9 @@ module Oddb2xml
           @infos_zur_rose.each do |ean13, info|
             nr_items += 1
             pharmacode = info[:pharmacode]
+            if pharmacode.nil? && @emediplan[ean13]
+              pharmacode = @emediplan[ean13][:pharmacode]
+            end
             if @pharmacode[pharmacode]
               @pharmacode[pharmacode][:price] = info[:price]
               @pharmacode[pharmacode][:pub_price] = info[:pub_price]
@@ -176,13 +180,19 @@ module Oddb2xml
           if description.empty?
             description = obj[:trade_item_description_en]
           end
+          ean13 = obj[:gtin]
           if (!description.empty? || !obj[:trade_item_description_fr].empty?) && @refdata[obj[:gtin]].nil?
+            pharmacode = nil
+            if @emediplan[ean13]
+              pharmacode = @emediplan[ean13][:pharmacode]
+            end
             entry = {
-              ean13: obj[:gtin],
+              ean13: ean13,
               desc_de: description,
               desc_fr: obj[:trade_item_description_fr],
               atc_code: "",
               company_ean: obj[:gln],
+              pharmacode: pharmacode,
               firstbase: true
             }
             @articles << entry
