@@ -1,7 +1,8 @@
-name: Ruby
+name: Release
 
 on:
   push:
+    branches: [ master, '*' ]
     tags:
       - '*'
 
@@ -20,7 +21,10 @@ jobs:
       with:
         ruby-version: ruby
         bundler-cache: true
-    - uses: rubygems/release-gem@v1
+    - run: |
+        bundle exec rake gem
     - uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
+        artifacts: |
+          pkg/*.gem
